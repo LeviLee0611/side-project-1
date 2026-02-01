@@ -267,21 +267,23 @@ button:disabled {
   color: var(--muted);
 }
 
-.name-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 10px;
+.name-line {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
-.name-btn {
+.name-chip {
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid transparent;
   color: var(--ink);
   box-shadow: none;
   font-size: 14px;
+  padding: 8px 12px;
+  border-radius: 999px;
 }
 
-.name-btn.copied {
+.name-chip.copied {
   background: rgba(123, 240, 255, 0.2);
   border-color: var(--accent-2);
   color: var(--accent-2);

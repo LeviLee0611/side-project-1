@@ -4,19 +4,21 @@ const modes = [
 ];
 
 const themes = [
-  { id: "fantasy", label: "판타지", keywords: ["룬", "드래곤", "페어", "루나", "오로라", "실프", "마나", "엘프"] },
-  { id: "sci", label: "사이파이", keywords: ["네온", "코어", "퀀텀", "오메가", "노바", "프라임", "하이퍼", "시그마"] },
-  { id: "nature", label: "자연", keywords: ["바람", "숲", "파도", "노을", "별", "구름", "이끼", "솔"] },
-  { id: "myth", label: "신화", keywords: ["티탄", "오딘", "아레스", "니케", "헬리오", "아틀라", "페가", "나투"] },
-  { id: "sea", label: "바다", keywords: ["해류", "파도", "심해", "산호", "물결", "포말", "등대", "연무"] },
-  { id: "desert", label: "사막", keywords: ["모래", "신기루", "사구", "사하라", "바람", "황야", "오아시스"] },
-  { id: "urban", label: "도시", keywords: ["네온", "거리", "지하", "스카이", "타워", "레일", "블록", "광장"] },
-  { id: "mecha", label: "메카", keywords: ["기어", "메카", "코어", "모듈", "엔진", "프로토", "강철", "볼트"] },
-  { id: "gothic", label: "고딕", keywords: ["흑", "장미", "장막", "달", "야성", "유령", "벽난", "귀족"] },
-  { id: "hero", label: "영웅", keywords: ["용기", "검", "방패", "빛", "정의", "수호", "심장", "서약"] },
-  { id: "cute", label: "귀여움", keywords: ["모찌", "콩", "토토", "뽀짝", "말랑", "꿀", "토리", "젤리"] },
-  { id: "dark", label: "다크", keywords: ["그림자", "밤", "흑", "재", "심연", "새벽", "망령", "흑막"] },
-  { id: "funny", label: "웃김", keywords: ["허당", "삐끗", "꿀꿀", "띠롱", "삐약", "뿜", "멍때", "뽀잉"] },
+  { id: "fantasy", label: "판타지", keywords: ["룬", "드래곤", "페어", "루나", "오로라", "실프", "마나", "엘프", "세라프", "에테르"] },
+  { id: "sci", label: "사이파이", keywords: ["네온", "코어", "퀀텀", "오메가", "노바", "프라임", "하이퍼", "시그마", "테라", "펄스"] },
+  { id: "nature", label: "자연", keywords: ["바람", "숲", "파도", "노을", "별", "구름", "이끼", "솔", "이슬", "꽃"] },
+  { id: "myth", label: "신화", keywords: ["티탄", "오딘", "아레스", "니케", "헬리오", "아틀라", "페가", "나투", "포스", "레테"] },
+  { id: "sea", label: "바다", keywords: ["해류", "파도", "심해", "산호", "물결", "포말", "등대", "연무", "조류", "푸른"] },
+  { id: "desert", label: "사막", keywords: ["모래", "신기루", "사구", "사하라", "황야", "오아시스", "바위", "열기"] },
+  { id: "forest", label: "숲", keywords: ["녹", "새싹", "숲길", "이끼", "나뭇결", "바위", "초록", "숨"] },
+  { id: "sky", label: "하늘", keywords: ["하늘", "비", "구름", "폭풍", "무지개", "번개", "날개", "바람"] },
+  { id: "urban", label: "도시", keywords: ["네온", "거리", "지하", "스카이", "타워", "레일", "블록", "광장", "루프", "브릿지"] },
+  { id: "mecha", label: "메카", keywords: ["기어", "메카", "코어", "모듈", "엔진", "프로토", "강철", "볼트", "회로", "합금"] },
+  { id: "gothic", label: "고딕", keywords: ["흑", "장미", "장막", "달", "유령", "벽난", "귀족", "밤안개"] },
+  { id: "hero", label: "영웅", keywords: ["용기", "검", "방패", "빛", "정의", "수호", "심장", "서약", "승리"] },
+  { id: "cute", label: "귀여움", keywords: ["모찌", "콩", "토토", "뽀짝", "말랑", "꿀", "토리", "젤리", "빙글"] },
+  { id: "dark", label: "다크", keywords: ["그림자", "밤", "흑", "재", "심연", "새벽", "망령", "흑막", "암흑"] },
+  { id: "funny", label: "웃김", keywords: ["허당", "삐끗", "꿀꿀", "띠롱", "삐약", "뿜", "멍때", "뽀잉", "뒤뚱"] },
 ];
 
 const moods = [
@@ -56,6 +58,27 @@ const syllables = [
   "하",
   "히",
   "호",
+  "마",
+  "미",
+  "무",
+  "바",
+  "비",
+  "보",
+  "사",
+  "시",
+  "수",
+  "자",
+  "지",
+  "주",
+  "카",
+  "키",
+  "쿠",
+  "타",
+  "티",
+  "토",
+  "파",
+  "피",
+  "포",
 ];
 
 const englishBits = [
@@ -70,10 +93,21 @@ const englishBits = [
   "byte",
   "rift",
   "spark",
+  "halo",
+  "edge",
+  "prime",
+  "storm",
+  "void",
+  "core",
+  "shade",
+  "glow",
 ];
 
 const app = document.getElementById("app");
 const usedNames = new Set();
+const recentNames = [];
+const recentPrefixes = [];
+const recentLimit = 60;
 const history = [];
 let cursor = -1;
 
@@ -90,6 +124,22 @@ const parseCustomWords = (value) =>
     .filter((word) => word.length > 0)
     .slice(0, 8);
 
+const expandCustomWords = (words) => {
+  const expanded = new Set();
+  words.forEach((word) => {
+    expanded.add(word);
+    if (word.length >= 2) {
+      expanded.add(word.slice(0, 2));
+      expanded.add(word.slice(-2));
+    }
+    if (word.length >= 3) {
+      expanded.add(word.slice(0, 3));
+      expanded.add(word.slice(-3));
+    }
+  });
+  return [...expanded].filter((item) => item.length > 0);
+};
+
 const normalizeLength = (name, range) => {
   if (name.length > range.max) return name.slice(0, range.max);
   if (name.length < range.min) return name + pick(syllables).slice(0, range.min - name.length);
@@ -100,12 +150,14 @@ const buildName = (prefs) => {
   const mood = pick(moods.filter((item) => prefs.mood === "any" || item.id === prefs.mood));
   const theme = pick(themes.filter((item) => prefs.theme === "any" || item.id === prefs.theme));
   const range = getLengthRange(prefs.length);
-  const themePool = prefs.customWords.length > 0 ? [...theme.keywords, ...prefs.customWords] : theme.keywords;
+  const customPool = expandCustomWords(prefs.customWords);
+  const themePool = customPool.length > 0 ? [...theme.keywords, ...customPool] : theme.keywords;
 
   const base = pick(syllables) + pick(syllables);
   const moodChunk = pick(mood.fragments);
   const themeChunk = pick(themePool);
   const engChunk = pick(englishBits);
+  const linkChunk = customPool.length > 0 ? pick(customPool) : themeChunk;
 
   const patterns = [
     () => `${moodChunk}${base}`,
@@ -117,13 +169,16 @@ const buildName = (prefs) => {
     () => `${base}${pick(syllables)}${pick(syllables)}`,
     () => `${pick(syllables)}${engChunk}${pick(syllables)}`,
     () => `${engChunk}${base}`,
+    () => `${pick(syllables)}${base}${pick(syllables)}`,
+    () => `${themeChunk}${pick(syllables)}${engChunk}`,
   ];
 
   const linkedPatterns = [
-    () => `${themeChunk}${base}${pick(syllables)}`,
-    () => `${moodChunk}${themeChunk}`,
-    () => `${themeChunk}${pick(syllables)}${engChunk}`,
-    () => `${engChunk}${themeChunk}`,
+    () => `${linkChunk}${base}${pick(syllables)}`,
+    () => `${moodChunk}${linkChunk}`,
+    () => `${linkChunk}${pick(syllables)}${engChunk}`,
+    () => `${engChunk}${linkChunk}`,
+    () => `${linkChunk}${pick(syllables)}${moodChunk}`,
   ];
 
   const raw = prefs.mode === "linked" ? pick(linkedPatterns)() : pick(patterns)();
@@ -141,10 +196,19 @@ const buildTagline = (prefs) => {
 const buildBatch = (prefs) => {
   const names = [];
   let guard = 0;
-  while (names.length < 10 && guard < 400) {
+  const localPrefixes = new Set();
+  while (names.length < 10 && guard < 600) {
     const name = buildName(prefs);
-    if (!usedNames.has(name)) {
+    const prefix = name.slice(0, 2);
+    const tooRecent = recentNames.includes(name);
+    const prefixRepeat = localPrefixes.has(prefix) || recentPrefixes.includes(prefix);
+    if (!usedNames.has(name) && !tooRecent && !prefixRepeat) {
       usedNames.add(name);
+      recentNames.push(name);
+      if (recentNames.length > recentLimit) recentNames.shift();
+      recentPrefixes.push(prefix);
+      if (recentPrefixes.length > recentLimit) recentPrefixes.shift();
+      localPrefixes.add(prefix);
       names.push(name);
     }
     guard += 1;
@@ -174,8 +238,8 @@ const renderBatch = (batch) => {
           ${makeChip(batch.names.length + "개 추천")}
         </div>
       </header>
-      <div class="name-grid">
-        ${batch.names.map((name) => `<button class="name-btn">${name}</button>`).join("")}
+      <div class="name-line">
+        ${batch.names.map((name) => `<button class="name-chip">${name}</button>`).join("")}
       </div>
     </section>
   `;
@@ -245,7 +309,7 @@ app.innerHTML = `
   <div class="page">
     <header class="hero">
       <div class="badge">게임 닉네임 추천</div>
-      <h1>캐릭터 닉네임을 무작위로 만들어 드려요</h1>
+      <h1>나만의 캐릭터 닉네임 생성기</h1>
       <p class="sub">
         수백·수천 명이 써도 겹치지 않게, 계속 새 조합을 만들어냅니다.
         매번 10개씩 추천하고, 마음에 드는 이름은 눌러서 복사하세요.
@@ -338,7 +402,7 @@ document.querySelectorAll("input[name='mode']").forEach((input) => {
 });
 
 document.addEventListener("click", (event) => {
-  const button = event.target.closest(".name-btn");
+  const button = event.target.closest(".name-chip");
   if (!button) return;
   const text = button.textContent.trim();
   navigator.clipboard?.writeText(text);
