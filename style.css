@@ -95,6 +95,11 @@ h1 {
   gap: 10px;
 }
 
+.control-group.is-disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
 .control-group label {
   font-weight: 600;
 }
@@ -153,6 +158,13 @@ button:hover {
   box-shadow: 0 18px 30px rgba(255, 124, 124, 0.3);
 }
 
+button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
 .ghost {
   background: transparent;
   color: var(--ink);
@@ -169,13 +181,28 @@ button:hover {
   gap: 18px;
 }
 
-.results-head h2 {
-  margin: 0 0 6px;
+.results-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
-.results-head p {
+.results-head h2 {
   margin: 0;
+}
+
+.history {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.counter {
+  font-size: 12px;
   color: var(--muted);
+  letter-spacing: 0.08em;
 }
 
 .results-grid {
