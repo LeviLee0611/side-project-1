@@ -4,13 +4,19 @@ const modes = [
 ];
 
 const themes = [
-  { id: "fantasy", label: "판타지", keywords: ["룬", "드래곤", "페어", "루나", "오로라", "실프"] },
-  { id: "sci", label: "사이파이", keywords: ["네온", "코어", "퀀텀", "오메가", "노바", "프라임"] },
-  { id: "nature", label: "자연", keywords: ["바람", "숲", "파도", "노을", "별", "구름"] },
-  { id: "myth", label: "신화", keywords: ["티탄", "오딘", "아레스", "니케", "헬리오", "아틀라"] },
-  { id: "cute", label: "귀여움", keywords: ["모찌", "콩", "토토", "뽀짝", "말랑", "꿀"] },
-  { id: "dark", label: "다크", keywords: ["그림자", "밤", "흑", "재", "심연", "새벽"] },
-  { id: "funny", label: "웃김", keywords: ["허당", "삐끗", "꿀꿀", "띠롱", "삐약", "뿜"] },
+  { id: "fantasy", label: "판타지", keywords: ["룬", "드래곤", "페어", "루나", "오로라", "실프", "마나", "엘프"] },
+  { id: "sci", label: "사이파이", keywords: ["네온", "코어", "퀀텀", "오메가", "노바", "프라임", "하이퍼", "시그마"] },
+  { id: "nature", label: "자연", keywords: ["바람", "숲", "파도", "노을", "별", "구름", "이끼", "솔"] },
+  { id: "myth", label: "신화", keywords: ["티탄", "오딘", "아레스", "니케", "헬리오", "아틀라", "페가", "나투"] },
+  { id: "sea", label: "바다", keywords: ["해류", "파도", "심해", "산호", "물결", "포말", "등대", "연무"] },
+  { id: "desert", label: "사막", keywords: ["모래", "신기루", "사구", "사하라", "바람", "황야", "오아시스"] },
+  { id: "urban", label: "도시", keywords: ["네온", "거리", "지하", "스카이", "타워", "레일", "블록", "광장"] },
+  { id: "mecha", label: "메카", keywords: ["기어", "메카", "코어", "모듈", "엔진", "프로토", "강철", "볼트"] },
+  { id: "gothic", label: "고딕", keywords: ["흑", "장미", "장막", "달", "야성", "유령", "벽난", "귀족"] },
+  { id: "hero", label: "영웅", keywords: ["용기", "검", "방패", "빛", "정의", "수호", "심장", "서약"] },
+  { id: "cute", label: "귀여움", keywords: ["모찌", "콩", "토토", "뽀짝", "말랑", "꿀", "토리", "젤리"] },
+  { id: "dark", label: "다크", keywords: ["그림자", "밤", "흑", "재", "심연", "새벽", "망령", "흑막"] },
+  { id: "funny", label: "웃김", keywords: ["허당", "삐끗", "꿀꿀", "띠롱", "삐약", "뿜", "멍때", "뽀잉"] },
 ];
 
 const moods = [
@@ -77,6 +83,13 @@ const makeChip = (text) => `<span class="chip">${text}</span>`;
 
 const getLengthRange = (id) => lengthOptions.find((opt) => opt.id === id) || lengthOptions[0];
 
+const parseCustomWords = (value) =>
+  value
+    .split(/[,/\s]+/)
+    .map((word) => word.trim())
+    .filter((word) => word.length > 0)
+    .slice(0, 8);
+
 const normalizeLength = (name, range) => {
   if (name.length > range.max) return name.slice(0, range.max);
   if (name.length < range.min) return name + pick(syllables).slice(0, range.min - name.length);
@@ -87,10 +100,11 @@ const buildName = (prefs) => {
   const mood = pick(moods.filter((item) => prefs.mood === "any" || item.id === prefs.mood));
   const theme = pick(themes.filter((item) => prefs.theme === "any" || item.id === prefs.theme));
   const range = getLengthRange(prefs.length);
+  const themePool = prefs.customWords.length > 0 ? [...theme.keywords, ...prefs.customWords] : theme.keywords;
 
   const base = pick(syllables) + pick(syllables);
   const moodChunk = pick(mood.fragments);
-  const themeChunk = pick(theme.keywords);
+  const themeChunk = pick(themePool);
   const engChunk = pick(englishBits);
 
   const patterns = [
@@ -120,13 +134,14 @@ const buildTagline = (prefs) => {
   const mood = prefs.mood === "any" ? "랜덤" : moods.find((item) => item.id === prefs.mood)?.label;
   const theme = prefs.theme === "any" ? "랜덤" : themes.find((item) => item.id === prefs.theme)?.label;
   const length = lengthOptions.find((item) => item.id === prefs.length)?.label || "상관없음";
-  return `게임 캐릭터 닉네임 · ${mood} 느낌 · ${prefs.mode === "linked" ? theme + " 연관" : "완전 랜덤"} · ${length}`;
+  const custom = prefs.customWords.length > 0 ? "사용자 단어" : "기본 단어";
+  return `게임 캐릭터 닉네임 · ${mood} 느낌 · ${prefs.mode === "linked" ? theme + " 연관" : "완전 랜덤"} · ${length} · ${custom}`;
 };
 
 const buildBatch = (prefs) => {
   const names = [];
   let guard = 0;
-  while (names.length < 12 && guard < 400) {
+  while (names.length < 10 && guard < 400) {
     const name = buildName(prefs);
     if (!usedNames.has(name)) {
       usedNames.add(name);
@@ -143,6 +158,7 @@ const buildBatch = (prefs) => {
       prefs.mode === "linked" ? "연관 단어" : "완전 랜덤",
       prefs.mood === "any" ? "느낌 랜덤" : moods.find((item) => item.id === prefs.mood)?.label,
       prefs.theme === "any" ? "테마 랜덤" : themes.find((item) => item.id === prefs.theme)?.label,
+      prefs.customWords.length > 0 ? "사용자 단어 포함" : "기본 단어",
     ],
   };
 };
@@ -180,24 +196,29 @@ const getPrefs = () => {
   const theme = document.querySelector("input[name='theme']:checked").value;
   const mood = document.querySelector("input[name='mood']:checked").value;
   const length = document.querySelector("input[name='length']:checked").value;
-  return { mode, theme, mood, length };
+  const customWords = parseCustomWords(document.querySelector("[data-custom-words]").value);
+  return { mode, theme, mood, length, customWords };
 };
 
 const applyThemeState = () => {
   const mode = document.querySelector("input[name='mode']:checked").value;
   const themeSection = document.querySelector("[data-theme-group]");
   const inputs = themeSection.querySelectorAll("input");
+  const customInput = document.querySelector("[data-custom-words]");
   if (mode === "random") {
     themeSection.classList.add("is-disabled");
     inputs.forEach((input) => {
       input.disabled = true;
       if (input.value === "any") input.checked = true;
     });
+    customInput.disabled = true;
+    customInput.value = "";
   } else {
     themeSection.classList.remove("is-disabled");
     inputs.forEach((input) => {
       input.disabled = false;
     });
+    customInput.disabled = false;
   }
 };
 
@@ -215,6 +236,7 @@ const reset = () => {
   document.querySelector("input[name='theme'][value='any']").checked = true;
   document.querySelector("input[name='mood'][value='any']").checked = true;
   document.querySelector("input[name='length'][value='any']").checked = true;
+  document.querySelector("[data-custom-words]").value = "";
   applyThemeState();
   createBatch();
 };
@@ -223,10 +245,10 @@ app.innerHTML = `
   <div class="page">
     <header class="hero">
       <div class="badge">게임 닉네임 추천</div>
-      <h1>캐릭터 닉네임을<br />무작위로 만들어 드려요</h1>
+      <h1>캐릭터 닉네임을 무작위로 만들어 드려요</h1>
       <p class="sub">
         수백·수천 명이 써도 겹치지 않게, 계속 새 조합을 만들어냅니다.
-        마음에 드는 이름은 눌러서 복사하세요.
+        매번 10개씩 추천하고, 마음에 드는 이름은 눌러서 복사하세요.
       </p>
     </header>
 
@@ -250,6 +272,8 @@ app.innerHTML = `
             <label><input type="radio" name="theme" value="any" checked /> 상관없음</label>
             ${themes.map((item) => `<label><input type="radio" name="theme" value="${item.id}" /> ${item.label}</label>`).join("")}
           </div>
+          <input class="text-input" type="text" data-custom-words placeholder="이름/의미 단어 입력 (예: 레비, 하늘, 루미)" />
+          <p class="helper">쉼표나 공백으로 여러 단어를 입력할 수 있어요. (최대 8개)</p>
         </div>
         <div class="control-group">
           <label>전체 느낌</label>
