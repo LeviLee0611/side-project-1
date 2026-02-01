@@ -81,28 +81,6 @@ const syllables = [
   "포",
 ];
 
-const englishBits = [
-  "neo",
-  "ark",
-  "zen",
-  "nova",
-  "luna",
-  "vex",
-  "flux",
-  "echo",
-  "byte",
-  "rift",
-  "spark",
-  "halo",
-  "edge",
-  "prime",
-  "storm",
-  "void",
-  "core",
-  "shade",
-  "glow",
-];
-
 const app = document.getElementById("app");
 const usedNames = new Set();
 const recentNames = [];
@@ -156,7 +134,6 @@ const buildName = (prefs) => {
   const base = pick(syllables) + pick(syllables);
   const moodChunk = pick(mood.fragments);
   const themeChunk = pick(themePool);
-  const engChunk = pick(englishBits);
   const linkChunk = customPool.length > 0 ? pick(customPool) : themeChunk;
 
   const patterns = [
@@ -167,17 +144,14 @@ const buildName = (prefs) => {
     () => `${moodChunk}${pick(syllables)}${themeChunk}`,
     () => `${themeChunk}${pick(syllables)}${moodChunk}`,
     () => `${base}${pick(syllables)}${pick(syllables)}`,
-    () => `${pick(syllables)}${engChunk}${pick(syllables)}`,
-    () => `${engChunk}${base}`,
     () => `${pick(syllables)}${base}${pick(syllables)}`,
-    () => `${themeChunk}${pick(syllables)}${engChunk}`,
+    () => `${themeChunk}${pick(syllables)}${moodChunk}`,
   ];
 
   const linkedPatterns = [
     () => `${linkChunk}${base}${pick(syllables)}`,
     () => `${moodChunk}${linkChunk}`,
-    () => `${linkChunk}${pick(syllables)}${engChunk}`,
-    () => `${engChunk}${linkChunk}`,
+    () => `${linkChunk}${pick(syllables)}${moodChunk}`,
     () => `${linkChunk}${pick(syllables)}${moodChunk}`,
   ];
 
