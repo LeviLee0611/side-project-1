@@ -43,36 +43,56 @@ const tones = [
   { id: "soft", label: "부드러움", fragments: ["포근", "은하", "라떼", "솜", "봄", "하모니"] },
 ];
 
+const moods = [
+  { id: "cute", label: "귀여움", fragments: ["냥", "몽글", "말랑", "뽀짝", "토리", "쪼꼬"] },
+  { id: "strong", label: "강한", fragments: ["폭풍", "철", "강철", "블레이드", "파괴", "바위"] },
+  { id: "funny", label: "웃긴", fragments: ["꿀꿀", "허당", "뿜", "삐끗", "띠롱", "깜찍"] },
+  { id: "mystic", label: "신비", fragments: ["안개", "달빛", "성운", "환상", "그림자", "새벽"] },
+];
+
 const app = document.getElementById("app");
 
 const makeChip = (text) => `<span class="chip">${text}</span>`;
 
-const shuffle = (arr) => [...arr].sort(() => Math.random() - 0.5);
-
 const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
-const buildName = (archetype, tone, length) => {
+const syllables = ["라", "리", "루", "르", "나", "노", "니", "누", "아", "에", "이", "오", "우"];
+
+const buildName = (archetype, tone, mood, length) => {
   const base = `${pick(archetype.stems)}${pick(archetype.suffixes)}`;
   const toneChunk = pick(tone.fragments);
-  if (length === "short") return base.slice(0, 4);
-  if (length === "long") return `${toneChunk}${base}`;
-  return `${base}${toneChunk}`;
+  const moodChunk = pick(mood.fragments);
+  const glue = pick(syllables);
+  const patterns = [
+    () => `${toneChunk}${base}`,
+    () => `${base}${moodChunk}`,
+    () => `${moodChunk}${glue}${base}`,
+    () => `${base}${glue}${toneChunk}`,
+    () => `${toneChunk}${glue}${moodChunk}`,
+    () => `${moodChunk}${base}${pick(archetype.suffixes)}`,
+  ];
+  const raw = pick(patterns)();
+  if (length === "short") return raw.slice(0, 4);
+  if (length === "long") return raw + pick(syllables);
+  return raw;
 };
 
-const buildTagline = (archetype, tone) =>
-  `${pick(archetype.vibes)}한 ${archetype.label} + ${tone.label}`;
+const buildTagline = (archetype, tone, mood) =>
+  `${pick(archetype.vibes)}한 ${archetype.label} + ${tone.label} + ${mood.label}`;
 
 const buildSet = (prefs) => {
   const archetype = pick(archetypes.filter((a) => prefs.archetype === "any" || a.id === prefs.archetype));
   const tone = pick(tones.filter((t) => prefs.tone === "any" || t.id === prefs.tone));
+  const mood = pick(moods.filter((m) => prefs.mood === "any" || m.id === prefs.mood));
   const names = new Set();
   while (names.size < 6) {
-    names.add(buildName(archetype, tone, prefs.length));
+    names.add(buildName(archetype, tone, mood, prefs.length));
   }
   return {
     archetype,
     tone,
-    tagline: buildTagline(archetype, tone),
+    mood,
+    tagline: buildTagline(archetype, tone, mood),
     names: [...names],
   };
 };
@@ -85,6 +105,7 @@ const render = (result) => {
         <div class="meta">
           ${makeChip(result.archetype.label)}
           ${makeChip(result.tone.label)}
+          ${makeChip(result.mood.label)}
           ${makeChip(result.names.length + "개 추천")}
         </div>
       </header>
@@ -105,8 +126,9 @@ const clearResults = () => {
 const getPrefs = () => {
   const archetype = document.querySelector("input[name='archetype']:checked").value;
   const tone = document.querySelector("input[name='tone']:checked").value;
+  const mood = document.querySelector("input[name='mood']:checked").value;
   const length = document.querySelector("input[name='length']:checked").value;
-  return { archetype, tone, length };
+  return { archetype, tone, mood, length };
 };
 
 app.innerHTML = `
@@ -138,6 +160,13 @@ app.innerHTML = `
           <div class="options">
             <label><input type="radio" name="tone" value="any" checked /> 상관없음</label>
             ${tones.map((item) => `<label><input type="radio" name="tone" value="${item.id}" /> ${item.label}</label>`).join("")}
+          </div>
+        </div>
+        <div class="control-group">
+          <label>전체 느낌</label>
+          <div class="options">
+            <label><input type="radio" name="mood" value="any" checked /> 상관없음</label>
+            ${moods.map((item) => `<label><input type="radio" name="mood" value="${item.id}" /> ${item.label}</label>`).join("")}
           </div>
         </div>
         <div class="control-group">
@@ -173,6 +202,7 @@ const generate = () => {
 const reset = () => {
   document.querySelector("input[name='archetype'][value='any']").checked = true;
   document.querySelector("input[name='tone'][value='any']").checked = true;
+  document.querySelector("input[name='mood'][value='any']").checked = true;
   document.querySelector("input[name='length'][value='mid']").checked = true;
   clearResults();
   render(buildSet(getPrefs()));
